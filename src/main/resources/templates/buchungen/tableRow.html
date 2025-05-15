@@ -1,0 +1,12 @@
+
+
+<tr id="row-{buchung.id}">
+    <td>{buchung.buchungsNummer}</td>
+    <td>{buchung.datum}</td>
+    <td>{state??}{buchung.beschreibung}</td>
+    <td>{buchung.buchungszeile.raw}</td>
+    <td>
+        <a href="#" onclick="editBuchung('{buchung.id}')">📝</a>
+        <a href="#" onclick="deleteBuchung('{buchung.id}')">❌</a>
+        {#if buchung.beleg}<a href="/buchungen/{buchung.id}/attachment" target="_blank">📩</a>{/if}</td>
+</tr>

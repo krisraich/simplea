@@ -1,0 +1,234 @@
+{#include default}
+{#title}Buchungen{/title}
+<main class="container">
+
+    <form id="upsertForm" enctype="multipart/form-data">
+        <fieldset class="grid" style="grid-template-columns: 1fr 3fr 2fr;">
+            <input
+                    id="datum"
+                    name="datum"
+                    placeholder="Belegdatum"
+                    aria-label="Datum"
+                    type="date"
+                    onfocus="this.max=new Date().toISOString().split('T')[0]"
+                    required
+            />
+            <input
+                    type="text"
+                    id="beschreibung"
+                    name="beschreibung"
+                    placeholder="Beschreibung"
+                    aria-label="Beschreibung"
+                    required
+            />
+
+            <fieldset role="group">
+                <input
+                        type="number"
+                        name="betrag"
+                        id="betrag"
+                        placeholder="Betrag in EUR"
+                        aria-label="Betrag in EUR"
+                        min="0"
+                        required
+                        step="0.01"
+                        style=" margin-right: 1em;"
+                />
+                <fieldset>
+                    <label for="terms">
+                        <input type="checkbox" role="switch" id="brutto" name="brutto" value="true"> ink. Ust.<br/>
+                        <strong id="betragUmrechner"></strong>
+                    </label>
+                </fieldset>
+            </fieldset>
+
+        </fieldset>
+        <fieldset class="grid" style="grid-template-columns: 5fr 8fr 5fr 10fr 10fr 2fr;">
+
+            <fieldset style="margin-bottom: 0">
+                <label for="einnahme">
+                    <input type="radio" id="einnahme" name="einnahme" value="true">
+                    Einname
+                </label>
+                <label for="ausgabe" style="margin-bottom: 0">
+                    <input type="radio" id="ausgabe" name="einnahme" value="false" checked>
+                    Ausgabe
+                </label>
+            </fieldset>
+
+            <select id="kontoNummer" name="kontoNummer" aria-label="EA Konto" required>
+                <option selected disabled value="">
+                    Konto...
+                </option>
+                {#for konto in konten}
+                    <option data-steuer="{konto.steuerSatz}" data-einname="{konto.einnahme}" value="{konto.nummer}">{konto}</option>
+                {/for}
+            </select>
+            <select name="steuerSatz" id="steuerSatz" aria-label="Steuersatz" required>
+                {#for steuerCode in steuerCodes}
+                    <option value="{steuerCode}" data-val="{steuerCode.getProzent}">{steuerCode.getName}</option>
+                {/for}
+            </select>
+            <input type="file" name="beleg">
+            <fieldset class="grid">
+                <a role="button" style="margin-bottom: 0" href="#" onclick="submitForm(false)">Anlegen</a>
+                <a role="button" id="editButton" style="margin-bottom: 0; display: none" href="#" onclick="submitForm(true)">Updaten</a>
+            </fieldset>
+            <fieldset class="grid">
+                <a role="button" class="outline contrast" id="reset" style="margin-bottom: 0" href="#" onclick="resetForm()">♻️</a>
+            </fieldset>
+        </fieldset>
+    </form>
+
+
+    <table>
+        <thead>
+        <tr>
+            <th scope="col">Nr</th>
+            <th scope="col">Datum</th>
+            <th scope="col">Beschreibung</th>
+            <th scope="col">Buchung</th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody id="buchungen">
+
+        {#for buchung in buchungen}
+            {#include buchungen/tableRow}{buchung}{/include}
+        {/for}
+    </table>
+
+</main>
+
+<script>
+
+    const upsertForm = document.getElementById("upsertForm");
+
+    //brutto netto umrechner
+    const steuerSatz = document.getElementById("steuerSatz");
+    steuerSatz.onchange = updateBetrag;
+    const bnSwitch = document.getElementById("brutto");
+    bnSwitch.onchange = updateBetrag;
+    const betrag = document.getElementById("betrag");
+    betrag.onkeyup = updateBetrag;
+    const betragUmrechner = document.getElementById("betragUmrechner");
+
+    let buchungsId = null;
+    const editButton = document.getElementById("editButton");
+
+    function updateBetrag() {
+        const toBrutto = bnSwitch.checked;
+        const betragVal = parseFloat(betrag.value);
+        const currentSteuer = parseFloat(
+                steuerSatz.children[steuerSatz.selectedIndex].getAttribute("data-val")
+        );
+        if (isNaN(betragVal) || betragVal < 0) {
+            betragUmrechner.textContent = "";
+            return;
+        }
+
+        if (toBrutto) {
+            betragUmrechner.textContent = "Netto € " + (betragVal / (1 + currentSteuer)).toFixed(2);
+
+        } else {
+            betragUmrechner.textContent = "Brutto € " + (betragVal * (1 + currentSteuer)).toFixed(2);
+        }
+    }
+
+    //update steuer when konto changes
+    const kontoNummer = document.getElementById("kontoNummer");
+    kontoNummer.onchange = function () {
+        const kontoSteuer = kontoNummer.children[kontoNummer.selectedIndex].getAttribute("data-steuer");
+        steuerSatz.value = kontoSteuer;
+    }
+
+    //ea konto switch
+    const einnahme = document.getElementById("einnahme");
+    const ausgabe = document.getElementById("ausgabe");
+    einnahme.onchange = filterKonten;
+    ausgabe.onchange = filterKonten;
+
+    function filterKonten() {
+        const isEinnahme = einnahme.checked;
+        const konten = document.querySelectorAll("select[name='kontoNummer'] option");
+        for (let i = 0; i < konten.length; i++) {
+            const konto = konten[i];
+            if (i == 0) {
+                konto.selected = true;
+            }
+            const isEinnahmeKonto = konto.getAttribute("data-einname") === "true";
+            if (isEinnahmeKonto !== isEinnahme) {
+                konto.style.display = "none";
+            } else {
+                konto.style.display = "block";
+            }
+        }
+
+    }
+
+    filterKonten();
+
+    async function submitForm(isUpdate) {
+        try {
+            const response = await fetch(window.location.pathname + (isUpdate ? "/" + buchungsId : ""), {
+                method: isUpdate ? "PUT" : "POST",
+                body: new FormData(upsertForm)
+            });
+
+            if (response.ok) {
+                alert("Erfolgreich gesendet!");
+                const html = await response.text();
+                if(isUpdate) {
+                    document.getElementById("row-" + buchungsId).remove();
+                }
+                document.getElementById("buchungen").insertAdjacentHTML("afterbegin", html);
+                resetForm();
+            } else {
+                const errorText = await response.text(); // optional: Fehlertext vom Server anzeigen
+                console.log(errorText);
+                alert(errorText);
+            }
+        } catch (err) {
+            alert("Netzwerkfehler: " + err.message);
+        }
+    }
+
+    function deleteBuchung(id) {
+        if (confirm("Buchung löschen?")) {
+                fetch("/buchungen/" + id, {
+                method: "DELETE",
+            });
+            document.getElementById("row-" + id).remove();
+        }
+    }
+
+    async function editBuchung(id) {
+        const response = await fetch("/buchungen/" + id, {
+            method: "GET",
+        });
+        if(response.ok){
+            const buchung = await response.json();
+            buchungsId = buchung.id;
+            document.getElementById("datum").value = buchung.datum;
+            document.getElementById("beschreibung").value = buchung.beschreibung;
+            betrag.value = buchung.betrag;
+            einnahme.checked = buchung.einnahme;
+            ausgabe.checked = !buchung.einnahme;
+            steuerSatz.value = buchung.steuerSatz;
+            filterKonten();
+            updateBetrag();
+            document.querySelectorAll("select[name='kontoNummer'] option[value='" + buchung.kontoNummer + "']")[0].selected = true
+            editButton.style.display = "block"
+        }
+    }
+
+    function resetForm(){
+        upsertForm.reset();
+        editButton.style.display = "none"
+        betragUmrechner.textContent = "";
+        buchungsId = null
+    }
+
+</script>
+
+{/include}

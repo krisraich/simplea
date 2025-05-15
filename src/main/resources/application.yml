@@ -1,0 +1,36 @@
+quarkus:
+  http:
+    port: 8070
+    enable-compression: true
+    compressors: deflate,gzip,br
+    proxy:
+      proxy-address-forwarding: true
+      allow-forwarded: true
+      allow-x-forwarded: true
+      enable-forwarded-host: true
+      enable-forwarded-prefix: true
+      forwarded-host-header: X-ORIGINAL-HOST
+  oidc:
+    auth-server-url:
+    client-id:
+    credentials:
+      secret:
+    resolve-tenants-with-issuer: true
+    application-type: web-app
+    authentication:
+      user-info-required: true
+      scopes:
+        - openid
+        - api_access
+        - offline_access
+  mongodb:
+    connection-string: mongodb://mongodb:27017
+    database: simplea
+  log:
+    console:
+      format: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %z{Europe/Vienna} %-5p [%c{2.}] %s%e%n"
+
+"%dev":
+  quarkus:
+    mongodb:
+        connection-string: mongodb://root:example@localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0&authSource=admin
