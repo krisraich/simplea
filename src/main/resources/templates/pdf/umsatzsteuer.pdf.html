@@ -7,7 +7,8 @@
     <style>
         body {
             font-family: sans-serif;
-            line-height: 1.2;
+            line-height: 1.3;
+            font-size: 18px;
         }
         table {
             border-collapse: collapse;
@@ -19,8 +20,11 @@
         table tfoot tr td {
             border-top: 0.1px solid black;
         }
-        table td:last-child {
+        table th:last-child, table td:last-child {
             text-align: right;
+        }
+        table tfoot {
+            font-weight: bold;
         }
     </style>
 </head>
@@ -28,7 +32,7 @@
 
 <h1>Umsatzsteuer Auszug</h1>
 
-<p>Von {startDate} bis {endDate}</p>
+<p>Zeitraum {startDate} bis {endDate}</p>
 
 <br />
 <h3>Vorsteuer</h3>
