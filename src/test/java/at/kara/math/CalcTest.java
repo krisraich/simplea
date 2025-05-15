@@ -19,7 +19,8 @@
 
 package at.kara.math;
 
-import at.kara.buchungen.Steuersatz;
+import at.kara.common.Calc;
+import at.kara.konten.KontenPlan;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -31,12 +32,12 @@ class CalcTest {
     void testTax() {
         Assertions.assertEquals(
                 0,
-                Calc.bruttoToNetto(new BigDecimal("120"), Steuersatz.ZWANZIG).compareTo(new BigDecimal("100"))
+                Calc.bruttoToNetto(new BigDecimal("120"), KontenPlan.UMSATZSTEUER_20).compareTo(new BigDecimal("100"))
         );
 
         Assertions.assertEquals(
                 0,
-                Calc.nettoToBrutto(new BigDecimal("100"), Steuersatz.ZWANZIG).compareTo(new BigDecimal("120"))
+                Calc.nettoToBrutto(new BigDecimal("100"), KontenPlan.UMSATZSTEUER_20).compareTo(new BigDecimal("120"))
         );
 
     }

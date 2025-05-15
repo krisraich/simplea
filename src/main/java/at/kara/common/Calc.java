@@ -17,9 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package at.kara.math;
+package at.kara.common;
 
-import at.kara.buchungen.Steuersatz;
+import at.kara.konten.Konto;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -45,12 +45,12 @@ public class Calc {
         FRENCH_NOTATION = format;
     }
 
-    public static BigDecimal nettoToBrutto(BigDecimal netto, Steuersatz tax) {
-        return netto.add(netto.multiply(tax.getProzent()));
+    public static BigDecimal nettoToBrutto(BigDecimal netto, Konto.Steuer konto) {
+        return netto.add(netto.multiply(konto.getAmount()));
     }
 
-    public static BigDecimal bruttoToNetto(BigDecimal brutto, Steuersatz tax) {
-        return brutto.divide(BigDecimal.ONE.add(tax.getProzent()), DEFAULT_CONTEXT);
+    public static BigDecimal bruttoToNetto(BigDecimal brutto, Konto.Steuer konto) {
+        return brutto.divide(BigDecimal.ONE.add(konto.getAmount()), DEFAULT_CONTEXT);
     }
 
     public static String formatToCurrency(BigDecimal value) {

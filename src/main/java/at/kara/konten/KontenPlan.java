@@ -21,6 +21,7 @@ package at.kara.konten;
 
 import at.kara.buchungen.Steuersatz;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,27 +36,31 @@ public class KontenPlan {
         }
     };
 
+
     //steuerkonten
-    public static Konto VORSTEUER_10 = new Konto(310, "Vorsteuer 10%");
-    public static Konto VORSTEUER_20 = new Konto(320, "Vorsteuer 20%");
+    public static Konto.Vorsteuer VORSTEUER_10 = new Konto.Vorsteuer(310, "Vorsteuer 10%", Steuersatz.ZEHN, new BigDecimal("0.1"));
+    public static Konto.Vorsteuer VORSTEUER_20 = new Konto.Vorsteuer(320, "Vorsteuer 20%", Steuersatz.ZWANZIG, new BigDecimal("0.2"));
 
-    public static Konto UMSATZSTEUER_10 = new Konto(210, "Umsatzsteuer 10%");
-    public static Konto UMSATZSTEUER_20 = new Konto(220, "Umsatzsteuer 20%");
+    public static Konto.Umsatzsteuer UMSATZSTEUER_10 = new Konto.Umsatzsteuer(210, "Umsatzsteuer 10%", Steuersatz.ZEHN, new BigDecimal("0.1"));
+    public static Konto.Umsatzsteuer UMSATZSTEUER_20 = new Konto.Umsatzsteuer(220, "Umsatzsteuer 20%", Steuersatz.ZWANZIG, new BigDecimal("0.2"));
 
-    public static Konto INNERGEMEINSCHAFTLICHER_ERWERB_10 = new Konto(21000, "Innergemeinschaftlicher Erwerb 10%") {
+    public static Konto.InnergemeinschaftlicherErwerb INNERGEMEINSCHAFTLICHER_ERWERB_10 = new Konto.InnergemeinschaftlicherErwerb(
+            21000, "Innergemeinschaftlicher Erwerb 10%", Steuersatz.ZEHN, new BigDecimal("0.1")) {
         @Override
         public String getShortName() {
             return "E210";
         }
     };
-    public static Konto INNERGEMEINSCHAFTLICHER_ERWERB_20 = new Konto(22000, "Innergemeinschaftlicher Erwerb 20%") {
+    public static Konto.InnergemeinschaftlicherErwerb INNERGEMEINSCHAFTLICHER_ERWERB_20 = new Konto.InnergemeinschaftlicherErwerb(
+            22000, "Innergemeinschaftlicher Erwerb 20%", Steuersatz.ZWANZIG, new BigDecimal("0.2")) {
         @Override
         public String getShortName() {
             return "E220";
         }
-    };;
+    };
 
     public static final Konto.Split PKW;
+
     static {
         Konto.Split pkw = new Konto.Split(7320, "PKW");
         pkw.getSplitMap().put(new Konto(9600, "Privatentnahme"), 0.25);

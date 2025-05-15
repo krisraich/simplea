@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Umsatzsteuer Auszug</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.2;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        table thead tr th {
+            border-bottom: 0.1px solid black;
+        }
+        table tfoot tr td {
+            border-top: 0.1px solid black;
+        }
+        table td:last-child {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Umsatzsteuer Auszug</h1>
+
+<p>Von {startDate} bis {endDate}</p>
+
+<br />
+<h3>Vorsteuer</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th scope="col">Konto</th>
+            <th scope="col">Betrag</th>
+        </tr>
+    </thead>
+    <tbody>
+    {#for zeile in vorsteuer}
+        <tr>
+            <td>{zeile.name}</td>
+            <td>€ {zeile.betrag}</td>
+        </tr>
+    {/for}
+    <tr>
+        <td>Innergemeinschaftliche Erwerbe</td>
+        <td>€ {innergemeinschaftlichTotal}</td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td>Summe</td>
+        <td>€ {vorsteuerTotal}</td>
+    </tr>
+    </tfoot>
+</table>
+
+<br />
+<h3>Umsatzsteuer</h3>
+
+<table>
+    <thead>
+    <tr>
+        <th scope="col">Konto</th>
+        <th scope="col">Betrag</th>
+    </tr>
+    </thead>
+    <tbody>
+    {#for zeile in umsatzsteuer}
+    <tr>
+        <td>{zeile.name}</td>
+        <td>€ {zeile.betrag}</td>
+    </tr>
+    {/for}
+    <tr>
+        <td>Innergemeinschaftliche Erwerbe</td>
+        <td>€ {innergemeinschaftlichTotal}</td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td>Summe</td>
+        <td>€ {umsatzsteuerTotal}</td>
+    </tr>
+    </tfoot>
+</table>
+
+<br />
+<h3>Innergemeinschaftliche Erwerbe</h3>
+
+<table>
+    <thead>
+    <tr>
+        <th scope="col">Konto</th>
+        <th scope="col">Betrag</th>
+    </tr>
+    </thead>
+    <tbody>
+    {#for zeile in innergemeinschaftlich}
+    <tr>
+        <td>{zeile.name}</td>
+        <td>€ {zeile.betrag}</td>
+    </tr>
+    {/for}
+    </tbody>
+    <tfoot>
+    <tr>
+        <td>Summe</td>
+        <td>€ {innergemeinschaftlichTotal}</td>
+    </tr>
+    </tfoot>
+</table>
+
+<br />
+<h3>Zahllast: € {zahllast}</h3>
+
+
+</body>
+
+</html>

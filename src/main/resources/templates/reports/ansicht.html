@@ -1,8 +1,16 @@
 {#include default}
 {#title}Reports{/title}
 <main class="container">
-    <h1>Report erstellen</h1>
 
+    <h2>Umsatzsteuer Auszug</h2>
+    <form method="POST" target="_blank">
+        <fieldset role="group">
+            <input name="type" type="hidden" value="umsatzsteuer" />
+            <input required name="startDate" type="date" placeholder="Von" />
+            <input required name="endDate" type="date" placeholder="Bis" />
+            <input type="submit" value="Erstellen" />
+        </fieldset>
+    </form>
 
 
 </main>

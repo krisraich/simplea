@@ -27,7 +27,6 @@ import io.quarkus.qute.TemplateInstance;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -48,12 +47,12 @@ import org.jboss.resteasy.reactive.server.multipart.MultipartFormDataInput;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.time.LocalDate;
-import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+
+import static at.kara.common.Util.processValue;
 
 @Path("/buchungen")
 @Authenticated
@@ -143,15 +142,6 @@ public class BuchungenResource {
         }
     }
 
-    private <T> T processValue(String propertyName, Map<String, Collection<FormValue>> values, Function<String, T> supplier) {
-        ArrayDeque<FormValue> formValues = (ArrayDeque) values.get(propertyName);
-        String val;
-        if (formValues == null || (val = formValues.getFirst().getValue()) == null || val.isBlank()) {
-            throw new BadRequestException(propertyName + " ist nicht optional");
-        }
-
-        return supplier.apply(val);
-    }
 
     @GET
     @Path("/{id}")

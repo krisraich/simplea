@@ -19,10 +19,13 @@
 
 package at.kara.buchungen;
 
+import at.kara.common.Calc;
+import at.kara.common.Util;
 import at.kara.konten.KontenPlan;
 import at.kara.konten.Konto;
-import at.kara.math.Calc;
 import io.quarkus.qute.TemplateExtension;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotSupportedException;
 
 import java.math.BigDecimal;
 import java.util.stream.Collectors;
@@ -55,22 +58,25 @@ public class BuchungHelper {
     static String buchungszeile(Buchung buchung) {
 
         Konto.EAKonto eakonto = KontenPlan.MAP.get(buchung.getKontoNummer());
-        if(buchung.isEinnahme()){
 
-            BigDecimal netto = Calc.bruttoToNetto(buchung.getBetrag(), buchung.getSteuerSatz());
+        //Ertrag mit Steuer
+        if (buchung.isEinnahme()) {
+            Konto.Steuer steuerKonto = Util.determineSteuerkontoFromBuchung(buchung)
+                    .orElseThrow(() -> new NotSupportedException("Erträge ohne Steuer werden noch nicht unterstützt"));
+
+            BigDecimal netto = Calc.bruttoToNetto(buchung.getBetrag(), steuerKonto);
             BigDecimal tax = buchung.getBetrag().subtract(netto);
 
-            Konto steuerKonto = switch (buchung.getSteuerSatz()) {
-                case ZEHN -> KontenPlan.VORSTEUER_10;
-                case ZWANZIG -> KontenPlan.VORSTEUER_20;
-                default -> throw new IllegalArgumentException("Unknown Steuersatz: " + buchung.getSteuerSatz());
-            };
-
-            return eakonto.getShortName() + SEP_NUM + steuerKonto.getShortName() + SEP_TEXT + KontenPlan.BANK.getShortName() +  "<br /> " +
+            return eakonto.getShortName() + SEP_NUM + steuerKonto.getShortName() + SEP_TEXT + KontenPlan.BANK.getShortName() + "<br /> " +
                     Calc.formatToCurrency(netto) + SEP_NUM + Calc.formatToCurrency(tax) + SEP_TEXT + Calc.formatToCurrency(buchung.getBetrag());
 
-        }else{
-            if(eakonto instanceof Konto.Split split){
+        } else {
+
+            //Aufwand mit Split und ohne Steuer
+            if (eakonto instanceof Konto.Split split) {
+                if (!Steuersatz.OHNE.equals(split.getSteuerSatz())) {
+                    throw new NotSupportedException("split konto mit steuer werden noch nicht unterstützt");
+                }
                 return KontenPlan.BANK.getShortName() + SEP_TEXT +
                         split.getSplitMap().keySet().stream().map(Konto::getShortName).collect(Collectors.joining(SEP_NUM)) + "<br /> " +
                         Calc.formatToCurrency(buchung.getBetrag()) + SEP_TEXT +
@@ -83,38 +89,28 @@ public class BuchungHelper {
                                 .map(Calc::formatToCurrency)
                                 .collect(Collectors.joining(SEP_NUM));
 
-            } else if(Steuersatz.OHNE.equals(buchung.getSteuerSatz())){
+                //Aufwand ohne Steuer
+            } else if (Steuersatz.OHNE.equals(buchung.getSteuerSatz())) {
                 return KontenPlan.BANK.getShortName() + SEP_TEXT + eakonto.getShortName() + "<br /> " +
                         Calc.formatToCurrency(buchung.getBetrag()) + SEP_TEXT + Calc.formatToCurrency(buchung.getBetrag());
 
-            } else if(buchung.isBrutto()){
-                BigDecimal netto = Calc.bruttoToNetto(buchung.getBetrag(), buchung.getSteuerSatz());
+                //Aufwand mit Steuer
+            } else if (buchung.isBrutto()) {
+                Konto.Steuer steuerKonto = Util.determineSteuerkontoFromBuchung(buchung).orElseThrow(BadRequestException::new);
+                BigDecimal netto = Calc.bruttoToNetto(buchung.getBetrag(), steuerKonto);
                 BigDecimal tax = buchung.getBetrag().subtract(netto);
-
-                Konto steuerKonto = switch (buchung.getSteuerSatz()) {
-                    case ZEHN -> KontenPlan.UMSATZSTEUER_10;
-                    case ZWANZIG -> KontenPlan.UMSATZSTEUER_20;
-                    default -> throw new IllegalArgumentException("Unknown Steuersatz: " + buchung.getSteuerSatz());
-                };
 
                 return KontenPlan.BANK.getShortName() + SEP_TEXT + eakonto.getShortName() + SEP_NUM + steuerKonto.getShortName() + "<br /> " +
                         Calc.formatToCurrency(buchung.getBetrag()) + SEP_TEXT + Calc.formatToCurrency(netto) + SEP_NUM + Calc.formatToCurrency(tax);
             } else {
-                Konto steuerKonto = switch (buchung.getSteuerSatz()) {
-                    case ZEHN -> KontenPlan.INNERGEMEINSCHAFTLICHER_ERWERB_10;
-                    case ZWANZIG -> KontenPlan.INNERGEMEINSCHAFTLICHER_ERWERB_20;
-                    default -> throw new IllegalArgumentException("Unknown Steuersatz: " + buchung.getSteuerSatz());
-                };
+                Konto.Steuer steuerKonto = Util.determineSteuerkontoFromBuchung(buchung).orElseThrow(BadRequestException::new);
 
-                BigDecimal brutto = Calc.nettoToBrutto(buchung.getBetrag(), buchung.getSteuerSatz());
+                BigDecimal brutto = Calc.nettoToBrutto(buchung.getBetrag(), steuerKonto);
                 BigDecimal tax = brutto.subtract(buchung.getBetrag());
 
                 return KontenPlan.BANK.getShortName() + SEP_TEXT + eakonto.getShortName() + SEP_NUM + steuerKonto.getShortName() + "<br /> " +
                         Calc.formatToCurrency(buchung.getBetrag()) + SEP_TEXT + Calc.formatToCurrency(brutto) + SEP_NUM + Calc.formatToCurrency(tax);
             }
         }
-
     }
-
-
 }

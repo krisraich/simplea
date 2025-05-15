@@ -26,6 +26,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.bson.codecs.pojo.annotations.BsonIgnore;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -37,12 +38,12 @@ public class Konto implements Comparable<Konto> {
 
     private final int nummer;
 
-    private final String name;
+    private final String beschreibung;
 
     @BsonIgnore
     @Override
     public String toString() {
-        return nummer + " " + name;
+        return nummer + " " + beschreibung;
     }
 
     public String getShortName() {
@@ -59,6 +60,49 @@ public class Konto implements Comparable<Konto> {
         return Integer.compare(nummer, o.nummer);
     }
 
+    @Getter
+    @Accessors(chain = true)
+    public abstract static class Steuer extends Konto {
+
+        private final Steuersatz steuerSatz;
+        private final BigDecimal amount;
+
+        Steuer(int nummer, String beschreibung, Steuersatz steuerSatz, BigDecimal amount) {
+            super(nummer, beschreibung);
+            this.steuerSatz = steuerSatz;
+            this.amount = amount;
+        }
+
+        @Override
+        public String toString() {
+            return getBeschreibung();
+        }
+    }
+
+    @Getter
+    @Accessors(chain = true)
+    public static class Vorsteuer extends Steuer {
+        Vorsteuer(int nummer, String beschreibung, Steuersatz steuerSatz, BigDecimal amount) {
+            super(nummer, beschreibung, steuerSatz, amount);
+        }
+    }
+
+    @Getter
+    @Accessors(chain = true)
+    public static class Umsatzsteuer extends Steuer {
+        Umsatzsteuer(int nummer, String beschreibung, Steuersatz steuerSatz, BigDecimal amount) {
+            super(nummer, beschreibung, steuerSatz, amount);
+        }
+    }
+
+    @Getter
+    @Accessors(chain = true)
+    public static class InnergemeinschaftlicherErwerb extends Steuer {
+        InnergemeinschaftlicherErwerb(int nummer, String beschreibung, Steuersatz steuerSatz, BigDecimal amount) {
+            super(nummer, beschreibung, steuerSatz, amount);
+        }
+    }
+
     /**
      * Konto 7xxx
      */
@@ -66,8 +110,8 @@ public class Konto implements Comparable<Konto> {
     @Accessors(chain = true)
     public abstract static class EAKonto extends Konto {
 
-        EAKonto(int betrag, String beschreibung) {
-            super(betrag, beschreibung);
+        EAKonto(int nummer, String beschreibung) {
+            super(nummer, beschreibung);
         }
 
         public abstract boolean isEinnahme();
@@ -83,12 +127,12 @@ public class Konto implements Comparable<Konto> {
 
         private final Steuersatz steuerSatz;
 
-        Aufwendungen(int betrag, String beschreibung) {
-            this(betrag, beschreibung, Steuersatz.ZWANZIG);
+        Aufwendungen(int nummer, String beschreibung) {
+            this(nummer, beschreibung, Steuersatz.ZWANZIG);
         }
 
-        Aufwendungen(int betrag, String beschreibung, Steuersatz steuerSatz) {
-            super(betrag, beschreibung);
+        Aufwendungen(int nummer, String beschreibung, Steuersatz steuerSatz) {
+            super(nummer, beschreibung);
             this.steuerSatz = steuerSatz;
         }
 
@@ -110,8 +154,8 @@ public class Konto implements Comparable<Konto> {
 
         private final Steuersatz steuerSatz = Steuersatz.ZWANZIG;
 
-        Ertraege(int betrag, String beschreibung) {
-            super(betrag, beschreibung);
+        Ertraege(int nummer, String beschreibung) {
+            super(nummer, beschreibung);
         }
 
         @Override
@@ -132,8 +176,8 @@ public class Konto implements Comparable<Konto> {
 
         private final Map<Konto, Double> splitMap = new TreeMap<>();
 
-        Split(int betrag, String beschreibung) {
-            super(betrag, beschreibung, Steuersatz.OHNE);
+        Split(int nummer, String beschreibung) {
+            super(nummer, beschreibung, Steuersatz.OHNE);
         }
 
     }
