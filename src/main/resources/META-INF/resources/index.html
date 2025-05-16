@@ -18,28 +18,55 @@
   -->
 
 <!DOCTYPE html>
-<html lang="de" data-theme="light">
+<html lang="de">
 <head>
+    <title>SimplEA 💶</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SimplEA 💶 </title>
     <link rel="stylesheet" href="/pico.css" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: url('/start.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .main {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .main h1 {
+            margin: 0 0 0.5rem;
+            color: #fff;
+        }
+
+        .main p {
+            margin: 0.2rem 0;
+            color: #eee;
+        }
+    </style>
 </head>
 <body>
-
-<main class="container">
-
-    <main class="container">
-        <h1>Willkommen bei SimplEA </h1>
-        <p>Ein simples Tool für die Verbuchung von Einnahmen / Ausgaben</p>
-
-        <a href="/oidc/callback" role="button">Zu den Buchungen</a>
-    </main>
-
-</main>
-
-
-
-
+<div class="main">
+    <h1>SimplEA</h1>
+    <p>Ein einfaches Tool für Bucherhaltung</p>
+    <br />
+    <p><a href="/oidc/callback" role="button" class="contrast">Mit OAuth anmelden</a></p>
+</div>
 </body>
 </html>
