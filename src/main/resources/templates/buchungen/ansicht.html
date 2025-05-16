@@ -5,6 +5,7 @@
     <form id="upsertForm" enctype="multipart/form-data">
         <fieldset class="grid" style="grid-template-columns: 1fr 3fr 2fr;">
             <input
+                    tabindex="0"
                     id="datum"
                     name="datum"
                     placeholder="Belegdatum"
@@ -14,6 +15,7 @@
                     required
             />
             <input
+                    tabindex="1"
                     type="text"
                     id="beschreibung"
                     name="beschreibung"
@@ -24,6 +26,7 @@
 
             <fieldset role="group">
                 <input
+                        tabindex="2"
                         type="number"
                         name="betrag"
                         id="betrag"
@@ -36,7 +39,7 @@
                 />
                 <fieldset>
                     <label for="terms">
-                        <input type="checkbox" role="switch" id="brutto" name="brutto" value="true"> ink. Ust.<br/>
+                        <input tabindex="3" type="checkbox" role="switch" id="brutto" name="brutto" value="true"> ink. Ust.<br/>
                         <strong id="betragUmrechner"></strong>
                     </label>
                 </fieldset>
@@ -47,16 +50,16 @@
 
             <fieldset style="margin-bottom: 0">
                 <label for="einnahme">
-                    <input type="radio" id="einnahme" name="einnahme" value="true">
+                    <input tabindex="4" type="radio" id="einnahme" name="einnahme" value="true">
                     Einname
                 </label>
                 <label for="ausgabe" style="margin-bottom: 0">
-                    <input type="radio" id="ausgabe" name="einnahme" value="false" checked>
+                    <input tabindex="5" type="radio" id="ausgabe" name="einnahme" value="false" checked>
                     Ausgabe
                 </label>
             </fieldset>
 
-            <select id="kontoNummer" name="kontoNummer" aria-label="EA Konto" required>
+            <select tabindex="6" id="kontoNummer" name="kontoNummer" aria-label="EA Konto" required>
                 <option selected disabled value="">
                     Konto...
                 </option>
@@ -64,15 +67,15 @@
                     <option data-steuer="{konto.steuerSatz}" data-einname="{konto.einnahme}" value="{konto.nummer}">{konto}</option>
                 {/for}
             </select>
-            <select name="steuerSatz" id="steuerSatz" aria-label="Steuersatz" required>
+            <select tabindex="7" name="steuerSatz" id="steuerSatz" aria-label="Steuersatz" required>
                 {#for steuerCode in steuerCodes}
                     <option value="{steuerCode}" data-val="{steuerCode.getProzent}">{steuerCode.getName}</option>
                 {/for}
             </select>
             <input type="file" name="beleg">
             <fieldset class="grid">
-                <a role="button" style="margin-bottom: 0" href="#" onclick="submitForm(false)">Anlegen</a>
-                <a role="button" id="editButton" style="margin-bottom: 0; display: none" href="#" onclick="submitForm(true)">Updaten</a>
+                <a role="button" tabindex="8" style="margin-bottom: 0" href="#" onclick="submitForm(false)">Anlegen</a>
+                <a role="button" tabindex="9" id="editButton" style="margin-bottom: 0; display: none" href="#" onclick="submitForm(true)">Updaten</a>
             </fieldset>
             <fieldset class="grid">
                 <a role="button" class="outline contrast" id="reset" style="margin-bottom: 0" href="#" onclick="resetForm()">♻️</a>
@@ -176,7 +179,6 @@
             });
 
             if (response.ok) {
-                alert("Erfolgreich gesendet!");
                 const html = await response.text();
                 if(isUpdate) {
                     document.getElementById("row-" + buchungsId).remove();

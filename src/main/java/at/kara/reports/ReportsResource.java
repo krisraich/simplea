@@ -29,7 +29,6 @@ import io.quarkus.qute.Location;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.security.Authenticated;
-import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.BadRequestException;
@@ -101,7 +100,7 @@ public class ReportsResource {
         LocalDate start = processValue("startDate", values, LocalDate::parse);
         LocalDate end = processValue("endDate", values, LocalDate::parse);
 
-        if(start.isAfter(end)) {
+        if (start.isAfter(end)) {
             throw new BadRequestException("Start date must be before end date");
         }
 
@@ -124,7 +123,7 @@ public class ReportsResource {
             Konto.Steuer konto = kontoOptional.get();
             BigDecimal steuerBetrag;
             if (buchung.isBrutto()) {
-                steuerBetrag = buchung.getBetrag().divide(BigDecimal.ONE.add(konto.getAmount()), Calc.DEFAULT_CONTEXT);
+                steuerBetrag = Calc.taxFromBrutto(buchung.getBetrag(), konto);
             } else {
                 steuerBetrag = buchung.getBetrag().multiply(konto.getAmount(), Calc.DEFAULT_CONTEXT);
             }

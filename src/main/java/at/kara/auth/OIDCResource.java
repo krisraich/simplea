@@ -30,19 +30,12 @@ import java.net.URI;
 @Authenticated
 @ApplicationScoped
 @Path("/oidc")
-public class OICDResource {
+public class OIDCResource {
 
     @GET
     @Path("/callback")
     public Response get() {
         return Response.temporaryRedirect(URI.create("/buchungen")).build();
     }
-
-    @GET
-    @Path("/ping")
-    public Response logout() {
-        return Response.ok("pong").build();
-    }
-
 
 }

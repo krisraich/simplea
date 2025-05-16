@@ -52,6 +52,9 @@ public class Calc {
     public static BigDecimal bruttoToNetto(BigDecimal brutto, Konto.Steuer konto) {
         return brutto.divide(BigDecimal.ONE.add(konto.getAmount()), DEFAULT_CONTEXT);
     }
+    public static BigDecimal taxFromBrutto(BigDecimal brutto, Konto.Steuer konto) {
+        return brutto.subtract(bruttoToNetto(brutto, konto));
+    }
 
     public static String formatToCurrency(BigDecimal value) {
         return FRENCH_NOTATION.format(value);

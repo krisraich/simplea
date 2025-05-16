@@ -15,13 +15,19 @@ quarkus:
     client-id:
     credentials:
       secret:
-    resolve-tenants-with-issuer: true
+    token:
+      refresh-expired: true
+      refresh-token-time-skew: 10D
     application-type: web-app
     authentication:
+      session-age-extension: 30D
       user-info-required: true
+      restore-path-after-redirect: true
+      pkce-required: true
+      id-token-required: false
       scopes:
         - openid
-        - api_access
+        - profile
         - offline_access
   mongodb:
     connection-string: mongodb://mongodb:27017
@@ -34,3 +40,7 @@ quarkus:
   quarkus:
     mongodb:
         connection-string: mongodb://root:example@localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0&authSource=admin
+    log:
+      category:
+        "io.quarkus.oidc":
+          level: DEBUG

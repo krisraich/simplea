@@ -46,6 +46,6 @@ public class BenutzerResource {
 
     @GET
     public TemplateInstance getCurrentUser() {
-        return ansicht.data("tenant", tenant == null ? "anonymous" : String.format("authenticated. uid: %s", tenant.getTenantId())) ;
+        return ansicht.data("tenant", tenant);
     }
 }

@@ -89,12 +89,13 @@ public class BuchungHelper {
                                 .map(Calc::formatToCurrency)
                                 .collect(Collectors.joining(SEP_NUM));
 
-                //Aufwand ohne Steuer
+            //Aufwand ohne Steuer
             } else if (Steuersatz.OHNE.equals(buchung.getSteuerSatz())) {
                 return KontenPlan.BANK.getShortName() + SEP_TEXT + eakonto.getShortName() + "<br /> " +
                         Calc.formatToCurrency(buchung.getBetrag()) + SEP_TEXT + Calc.formatToCurrency(buchung.getBetrag());
 
-                //Aufwand mit Steuer
+
+            //Aufwand gezahlt mit Steuer
             } else if (buchung.isBrutto()) {
                 Konto.Steuer steuerKonto = Util.determineSteuerkontoFromBuchung(buchung).orElseThrow(BadRequestException::new);
                 BigDecimal netto = Calc.bruttoToNetto(buchung.getBetrag(), steuerKonto);
@@ -102,14 +103,16 @@ public class BuchungHelper {
 
                 return KontenPlan.BANK.getShortName() + SEP_TEXT + eakonto.getShortName() + SEP_NUM + steuerKonto.getShortName() + "<br /> " +
                         Calc.formatToCurrency(buchung.getBetrag()) + SEP_TEXT + Calc.formatToCurrency(netto) + SEP_NUM + Calc.formatToCurrency(tax);
+
+            //Aufwand mit Steuer gezahlt Netto
             } else {
                 Konto.Steuer steuerKonto = Util.determineSteuerkontoFromBuchung(buchung).orElseThrow(BadRequestException::new);
 
                 BigDecimal brutto = Calc.nettoToBrutto(buchung.getBetrag(), steuerKonto);
                 BigDecimal tax = brutto.subtract(buchung.getBetrag());
 
-                return KontenPlan.BANK.getShortName() + SEP_TEXT + eakonto.getShortName() + SEP_NUM + steuerKonto.getShortName() + "<br /> " +
-                        Calc.formatToCurrency(buchung.getBetrag()) + SEP_TEXT + Calc.formatToCurrency(brutto) + SEP_NUM + Calc.formatToCurrency(tax);
+                return KontenPlan.BANK.getShortName() + SEP_TEXT + eakonto.getShortName() + " ("  + steuerKonto.getShortName() + ")<br /> " +
+                        Calc.formatToCurrency(buchung.getBetrag()) + SEP_TEXT + Calc.formatToCurrency(buchung.getBetrag()) + " (" + Calc.formatToCurrency(tax) + ")";
             }
         }
     }

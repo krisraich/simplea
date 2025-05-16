@@ -30,7 +30,8 @@ import jakarta.ws.rs.ext.Provider;
 @RequestScoped
 public class TenantResolver {
 
-    public static final String CLAIM_NAME = "sub";
+    public static final String SUB_CLAIM_KEY = "sub";
+    public static final String USER_CLAIM_KEY = "given_name";
     public static final int CLAIM_CUTOFF_LENGTH = 32;
 
     @Context
@@ -39,11 +40,14 @@ public class TenantResolver {
     @Produces
     public Tenant getTenantNameFromCaller() {
         OidcJwtCallerPrincipal oidcJwtCallerPrincipal = (OidcJwtCallerPrincipal) securityContext.getUserPrincipal();
-        if(oidcJwtCallerPrincipal == null) {
+        if (oidcJwtCallerPrincipal == null) {
             return null;
         }
-        String sub = oidcJwtCallerPrincipal.getClaim(CLAIM_NAME);
-        return new Tenant(sub.substring(0, CLAIM_CUTOFF_LENGTH));
+        String sub = oidcJwtCallerPrincipal.getClaim(SUB_CLAIM_KEY);
+        return new Tenant(
+                oidcJwtCallerPrincipal.getClaim(USER_CLAIM_KEY),
+                sub.substring(0, CLAIM_CUTOFF_LENGTH)
+        );
 
     }
 }

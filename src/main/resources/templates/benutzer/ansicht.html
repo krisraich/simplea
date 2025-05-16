@@ -2,7 +2,12 @@
 {#title}Benutzereinstellungen{/title}
 <main class="container">
     <h1>Benutzereinstellungen</h1>
-    {tenant}
+    {#if tenant}
+        User ID: {tenant.getTenantId} <br />
+        User Name: {tenant.getUserName} <br />
+    {#else}
+        Sie sind nicht angemeldet.
+    {/if}
 
 
 </main>

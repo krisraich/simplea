@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class Tenant {
 
+    private final String userName;
     private final String tenantId;
 
 }
