@@ -3,6 +3,10 @@
 Kleines Buchhaltungstool. Ungetestet und nicht fertig. 
 Verwendet einen OICD Provider und MongoDB.
 
+<img src="https://raw.githubusercontent.com/krisraich/simplea/refs/heads/master/docu/buchungen.png" width="600" />
+<img src="https://raw.githubusercontent.com/krisraich/simplea/refs/heads/master/docu/auszug.png" width="600" />
+
+
 ## Authentik Config:
 
  - QUARKUS_OIDC_AUTH_SERVER_URL=https://authentik.myserver.at/application/o/simplea/
