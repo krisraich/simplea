@@ -1,10 +1,9 @@
 {#include default}
 {#title}Benutzereinstellungen{/title}
 <main class="container">
-    <h1>Benutzereinstellungen</h1>
     {#if tenant}
-        User ID: {tenant.getTenantId} <br />
-        User Name: {tenant.getUserName} <br />
+        Benutzer ID: {tenant.getTenantId} <br />
+        Benutzername: {tenant.getUserName} <br />
     {#else}
         Sie sind nicht angemeldet.
     {/if}
