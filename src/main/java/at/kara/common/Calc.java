@@ -57,7 +57,7 @@ public class Calc {
     }
 
     public static String formatToCurrency(BigDecimal value) {
-        return FRENCH_NOTATION.format(value);
+        return FRENCH_NOTATION.format(value.setScale(2, RoundingMode.HALF_UP));
     }
 
 }

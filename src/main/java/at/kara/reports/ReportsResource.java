@@ -121,32 +121,23 @@ public class ReportsResource {
                 continue;
             }
             Konto.Steuer konto = kontoOptional.get();
-            BigDecimal steuerBetrag;
-            if (buchung.isBrutto()) {
-                steuerBetrag = Calc.taxFromBrutto(buchung.getBetrag(), konto);
-            } else {
-                steuerBetrag = buchung.getBetrag().multiply(konto.getAmount(), Calc.DEFAULT_CONTEXT);
-            }
-            if (steuerBetrag.compareTo(BigDecimal.ZERO) <= 0) {
-                log.warn("Steuerbetrag <= 0 for buchung '{}' with konto {}", buchung.getBeschreibung(), konto);
-                continue;
-            }
+            BigDecimal bemessungsgrundlage = buchung.isBrutto() ? Calc.bruttoToNetto(buchung.getBetrag(), konto) : buchung.getBetrag();
 
             switch (konto) {
                 case Konto.Vorsteuer vorsteuerKonto -> {
-                    BigDecimal sum = vorsteuer.getOrDefault(vorsteuerKonto, new BigDecimal(0)).add(steuerBetrag);
+                    BigDecimal sum = vorsteuer.getOrDefault(vorsteuerKonto, new BigDecimal(0)).add(bemessungsgrundlage);
                     vorsteuer.put(vorsteuerKonto, sum);
-                    vorsteuerTotal = vorsteuerTotal.add(steuerBetrag);
+                    vorsteuerTotal = vorsteuerTotal.add(bemessungsgrundlage.multiply(konto.getAmount()));
                 }
                 case Konto.Umsatzsteuer umsatzsteuerKonto -> {
-                    BigDecimal sum = umsatzsteuer.getOrDefault(umsatzsteuerKonto, new BigDecimal(0)).add(steuerBetrag);
+                    BigDecimal sum = umsatzsteuer.getOrDefault(umsatzsteuerKonto, new BigDecimal(0)).add(bemessungsgrundlage);
                     umsatzsteuer.put(umsatzsteuerKonto, sum);
-                    umsatzsteuerTotal = umsatzsteuerTotal.add(steuerBetrag);
+                    umsatzsteuerTotal = umsatzsteuerTotal.add(bemessungsgrundlage.multiply(konto.getAmount()));
                 }
                 case Konto.InnergemeinschaftlicherErwerb innergemeinschaftlichKonto -> {
-                    BigDecimal sum = innergemeinschaftlich.getOrDefault(innergemeinschaftlichKonto, new BigDecimal(0)).add(steuerBetrag);
+                    BigDecimal sum = innergemeinschaftlich.getOrDefault(innergemeinschaftlichKonto, new BigDecimal(0)).add(bemessungsgrundlage);
                     innergemeinschaftlich.put(innergemeinschaftlichKonto, sum);
-                    innergemeinschaftlichTotal = innergemeinschaftlichTotal.add(steuerBetrag);
+                    innergemeinschaftlichTotal = innergemeinschaftlichTotal.add(bemessungsgrundlage.multiply(konto.getAmount()));
                 }
                 default -> throw new IllegalStateException("Unknown Steuerkonto type: " + konto.getClass().getName());
             }
@@ -154,9 +145,6 @@ public class ReportsResource {
         // viel aufwende -> mehr Ust -> mehr Guthaben
         // viel erträge -> mehr VorSt. -> weniger Guthaben
         BigDecimal zahllast = vorsteuerTotal.subtract(umsatzsteuerTotal);
-
-        vorsteuerTotal = vorsteuerTotal.add(innergemeinschaftlichTotal);
-        umsatzsteuerTotal = umsatzsteuerTotal.add(innergemeinschaftlichTotal);
 
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -185,7 +173,9 @@ public class ReportsResource {
         steuerMap.forEach((konto, betrag) -> {
             list.add(Map.of(
                     "name", konto.getBeschreibung(),
-                    "betrag", Calc.formatToCurrency(betrag)
+                    "konto", konto.getShortName(),
+                    "bemessungsgrundlage", Calc.formatToCurrency(betrag),
+                    "steuerbetrag", Calc.formatToCurrency(betrag.multiply(konto.getAmount()))
             ));
         });
         return list;
