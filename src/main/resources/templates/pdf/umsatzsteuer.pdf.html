@@ -45,38 +45,6 @@
 <p>Zeitraum {startDate} bis {endDate}</p>
 
 <br />
-<h3>Vorsteuer</h3>
-
-<table>
-    <thead>
-        <tr>
-            <th scope="col">Bezeichnung</th>
-            <th scope="col">Konto</th>
-            <th scope="col">Bemessungsgrundlage</th>
-            <th scope="col">Steuerbetrag</th>
-        </tr>
-    </thead>
-    <tbody>
-    {#for zeile in vorsteuer}
-        <tr>
-            <td>{zeile.name}</td>
-            <td>{zeile.konto}</td>
-            <td>€ {zeile.bemessungsgrundlage}</td>
-            <td>€ {zeile.steuerbetrag}</td>
-        </tr>
-    {/for}
-    </tbody>
-    <tfoot>
-    <tr>
-        <td>Summe</td>
-        <td></td>
-        <td></td>
-        <td>€ {vorsteuerTotal}</td>
-    </tr>
-    </tfoot>
-</table>
-
-<br />
 <h3>Umsatzsteuer</h3>
 
 <table>
@@ -108,6 +76,7 @@
     </tfoot>
 </table>
 
+<br />
 <br />
 <h3>Innergemeinschaftliche Erwerbe</h3>
 
@@ -142,6 +111,46 @@
 
 <br />
 <br />
+<h3>Vorsteuer</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th scope="col">Bezeichnung</th>
+            <th scope="col">Konto</th>
+            <th scope="col">Bemessungsgrundlage</th>
+            <th scope="col">Steuerbetrag</th>
+        </tr>
+    </thead>
+    <tbody>
+    {#for zeile in vorsteuer}
+        <tr>
+            <td>{zeile.name}</td>
+            <td>{zeile.konto}</td>
+            <td>€ {zeile.bemessungsgrundlage}</td>
+            <td>€ {zeile.steuerbetrag}</td>
+        </tr>
+    {/for}
+    <tr>
+        <td>Summe innergemeinschaftlicher Erwerb</td>
+        <td></td>
+        <td></td>
+        <td>€ {innergemeinschaftlichTotal}</td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td>Summe</td>
+        <td></td>
+        <td></td>
+        <td>€ {summeVorsteuer}</td>
+    </tr>
+    </tfoot>
+</table>
+
+
+<br />
+<br />
 <br />
 
 <table style="width: 400px">
@@ -152,7 +161,7 @@
     </tr>
     <tr>
         <td>Summe Vorsteuer</td>
-        <td>€ {vorsteuerTotal}</td>
+        <td>€ {summeVorsteuer}</td>
     </tr>
     </tbody>
     <tfoot>

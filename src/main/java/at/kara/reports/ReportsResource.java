@@ -144,8 +144,8 @@ public class ReportsResource {
         }
         // viel aufwende -> mehr Ust -> mehr Guthaben
         // viel erträge -> mehr VorSt. -> weniger Guthaben
-        BigDecimal zahllast = vorsteuerTotal.subtract(umsatzsteuerTotal);
-
+        BigDecimal summeVorsteuer = vorsteuerTotal.add(innergemeinschaftlichTotal);
+        BigDecimal zahllast = summeVorsteuer.subtract(umsatzsteuerTotal);
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
@@ -159,6 +159,7 @@ public class ReportsResource {
                             "umsatzsteuerTotal", Calc.formatToCurrency(umsatzsteuerTotal),
                             "innergemeinschaftlich", flattenMap(innergemeinschaftlich),
                             "innergemeinschaftlichTotal", Calc.formatToCurrency(innergemeinschaftlichTotal),
+                            "summeVorsteuer", Calc.formatToCurrency(summeVorsteuer),
                             "zahllast", Calc.formatToCurrency(zahllast)
                     )
             ), null);
