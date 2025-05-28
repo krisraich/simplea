@@ -32,12 +32,12 @@ class CalcTest {
     void testTax() {
         Assertions.assertEquals(
                 0,
-                Calc.bruttoToNetto(new BigDecimal("120"), KontenPlan.UMSATZSTEUER_20).compareTo(new BigDecimal("100"))
+                Calc.bruttoToNetto(new BigDecimal("120"), KontenPlan.VORSTEUER_20).compareTo(new BigDecimal("100"))
         );
 
         Assertions.assertEquals(
                 0,
-                Calc.nettoToBrutto(new BigDecimal("100"), KontenPlan.UMSATZSTEUER_20).compareTo(new BigDecimal("120"))
+                Calc.nettoToBrutto(new BigDecimal("100"), KontenPlan.VORSTEUER_20).compareTo(new BigDecimal("120"))
         );
 
     }

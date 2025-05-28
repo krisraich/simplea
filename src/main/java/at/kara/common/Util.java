@@ -47,16 +47,16 @@ public class Util {
         Konto.Steuer konto = null;
         if (buchung.isEinnahme()) {
             konto = switch (buchung.getSteuerSatz()) {
-                case ZEHN -> KontenPlan.VORSTEUER_10;
-                case ZWANZIG -> KontenPlan.VORSTEUER_20;
+                case ZEHN -> KontenPlan.UMSATZSTEUER_10;
+                case ZWANZIG -> KontenPlan.UMSATZSTEUER_20;
                 case OHNE -> null;
             };
         } else {
             //Ausgabe + brutto = USt.
             if (buchung.isBrutto()) {
                 konto = switch (buchung.getSteuerSatz()) {
-                    case ZEHN -> KontenPlan.UMSATZSTEUER_10;
-                    case ZWANZIG -> KontenPlan.UMSATZSTEUER_20;
+                    case ZEHN -> KontenPlan.VORSTEUER_10;
+                    case ZWANZIG -> KontenPlan.VORSTEUER_20;
                     case OHNE -> null;
                 };
             } else {

@@ -81,16 +81,16 @@ public class Konto implements Comparable<Konto> {
 
     @Getter
     @Accessors(chain = true)
-    public static class Vorsteuer extends Steuer {
-        Vorsteuer(int nummer, String beschreibung, Steuersatz steuerSatz, BigDecimal amount) {
+    public static class Umsatzsteuer extends Steuer {
+        Umsatzsteuer(int nummer, String beschreibung, Steuersatz steuerSatz, BigDecimal amount) {
             super(nummer, beschreibung, steuerSatz, amount);
         }
     }
 
     @Getter
     @Accessors(chain = true)
-    public static class Umsatzsteuer extends Steuer {
-        Umsatzsteuer(int nummer, String beschreibung, Steuersatz steuerSatz, BigDecimal amount) {
+    public static class Vorsteuer extends Steuer {
+        Vorsteuer(int nummer, String beschreibung, Steuersatz steuerSatz, BigDecimal amount) {
             super(nummer, beschreibung, steuerSatz, amount);
         }
     }
@@ -181,6 +181,5 @@ public class Konto implements Comparable<Konto> {
         }
 
     }
-
 
 }

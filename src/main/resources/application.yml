@@ -29,6 +29,7 @@ quarkus:
         - openid
         - profile
         - offline_access
+  resolve-tenants-with-issuer: true
   mongodb:
     connection-string: mongodb://mongodb:27017
     database: simplea
@@ -40,7 +41,7 @@ quarkus:
   quarkus:
     mongodb:
         connection-string: mongodb://root:example@localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0&authSource=admin
-    log:
-      category:
-        "io.quarkus.oidc":
-          level: DEBUG
+#    log:
+#      category:
+#        "io.quarkus.oidc":
+#          level: DEBUG

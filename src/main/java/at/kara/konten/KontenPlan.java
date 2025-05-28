@@ -38,11 +38,11 @@ public class KontenPlan {
 
 
     //steuerkonten
-    public static Konto.Vorsteuer VORSTEUER_10 = new Konto.Vorsteuer(310, "Vorsteuer 10%", Steuersatz.ZEHN, new BigDecimal("0.1"));
-    public static Konto.Vorsteuer VORSTEUER_20 = new Konto.Vorsteuer(320, "Vorsteuer 20%", Steuersatz.ZWANZIG, new BigDecimal("0.2"));
+    public static final Konto.Umsatzsteuer UMSATZSTEUER_10 = new Konto.Umsatzsteuer(310, "Umsatzsteuer 10%", Steuersatz.ZEHN, new BigDecimal("0.1"));
+    public static final Konto.Umsatzsteuer UMSATZSTEUER_20 = new Konto.Umsatzsteuer(320, "Umsatzsteuer 20%", Steuersatz.ZWANZIG, new BigDecimal("0.2"));
 
-    public static Konto.Umsatzsteuer UMSATZSTEUER_10 = new Konto.Umsatzsteuer(210, "Umsatzsteuer 10%", Steuersatz.ZEHN, new BigDecimal("0.1"));
-    public static Konto.Umsatzsteuer UMSATZSTEUER_20 = new Konto.Umsatzsteuer(220, "Umsatzsteuer 20%", Steuersatz.ZWANZIG, new BigDecimal("0.2"));
+    public static final Konto.Vorsteuer VORSTEUER_10 = new Konto.Vorsteuer(210, "Vorsteuer 10%", Steuersatz.ZEHN, new BigDecimal("0.1"));
+    public static final Konto.Vorsteuer VORSTEUER_20 = new Konto.Vorsteuer(220, "Vorsteuer 20%", Steuersatz.ZWANZIG, new BigDecimal("0.2"));
 
     public static Konto.InnergemeinschaftlicherErwerb INNERGEMEINSCHAFTLICHER_ERWERB_10 = new Konto.InnergemeinschaftlicherErwerb(
             21000, "Innergemeinschaftlicher Erwerb 10%", Steuersatz.ZEHN, new BigDecimal("0.1")) {
@@ -51,7 +51,7 @@ public class KontenPlan {
             return "E210";
         }
     };
-    public static Konto.InnergemeinschaftlicherErwerb INNERGEMEINSCHAFTLICHER_ERWERB_20 = new Konto.InnergemeinschaftlicherErwerb(
+    public static final Konto.InnergemeinschaftlicherErwerb INNERGEMEINSCHAFTLICHER_ERWERB_20 = new Konto.InnergemeinschaftlicherErwerb(
             22000, "Innergemeinschaftlicher Erwerb 20%", Steuersatz.ZWANZIG, new BigDecimal("0.2")) {
         @Override
         public String getShortName() {

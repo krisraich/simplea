@@ -33,6 +33,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -106,14 +107,9 @@ public class ReportsResource {
 
         List<Buchung> list = buchungenRepository.find("{datum: {$gte: ?1, $lte: ?2}}", start, end).list();
 
-        Map<Konto.Vorsteuer, BigDecimal> vorsteuer = new HashMap<>();
-        BigDecimal vorsteuerTotal = new BigDecimal(0);
-
-        Map<Konto.Umsatzsteuer, BigDecimal> umsatzsteuer = new HashMap<>();
-        BigDecimal umsatzsteuerTotal = new BigDecimal(0);
-
-        Map<Konto.InnergemeinschaftlicherErwerb, BigDecimal> innergemeinschaftlich = new HashMap<>();
-        BigDecimal innergemeinschaftlichTotal = new BigDecimal(0);
+        Map<Konto.Umsatzsteuer, BigDecimal> umsatzsteuerMap = new HashMap<>();
+        Map<Konto.Vorsteuer, BigDecimal> vorsteuerMap = new HashMap<>();
+        Map<Konto.InnergemeinschaftlicherErwerb, BigDecimal> innergemeinschaftlichMap = new HashMap<>();
 
         for (Buchung buchung : list) {
             Optional<Konto.Steuer> kontoOptional = Util.determineSteuerkontoFromBuchung(buchung);
@@ -124,62 +120,81 @@ public class ReportsResource {
             BigDecimal bemessungsgrundlage = buchung.isBrutto() ? Calc.bruttoToNetto(buchung.getBetrag(), konto) : buchung.getBetrag();
 
             switch (konto) {
-                case Konto.Vorsteuer vorsteuerKonto -> {
-                    BigDecimal sum = vorsteuer.getOrDefault(vorsteuerKonto, new BigDecimal(0)).add(bemessungsgrundlage);
-                    vorsteuer.put(vorsteuerKonto, sum);
-                    vorsteuerTotal = vorsteuerTotal.add(bemessungsgrundlage.multiply(konto.getAmount()));
+                case Konto.Umsatzsteuer UmsatzsteuerKonto -> {
+                    BigDecimal sum = umsatzsteuerMap.getOrDefault(UmsatzsteuerKonto, new BigDecimal(0)).add(bemessungsgrundlage);
+                    umsatzsteuerMap.put(UmsatzsteuerKonto, sum);
                 }
-                case Konto.Umsatzsteuer umsatzsteuerKonto -> {
-                    BigDecimal sum = umsatzsteuer.getOrDefault(umsatzsteuerKonto, new BigDecimal(0)).add(bemessungsgrundlage);
-                    umsatzsteuer.put(umsatzsteuerKonto, sum);
-                    umsatzsteuerTotal = umsatzsteuerTotal.add(bemessungsgrundlage.multiply(konto.getAmount()));
+                case Konto.Vorsteuer vorsteuerKonto -> {
+                    BigDecimal sum = vorsteuerMap.getOrDefault(vorsteuerKonto, new BigDecimal(0)).add(bemessungsgrundlage);
+                    vorsteuerMap.put(vorsteuerKonto, sum);
                 }
                 case Konto.InnergemeinschaftlicherErwerb innergemeinschaftlichKonto -> {
-                    BigDecimal sum = innergemeinschaftlich.getOrDefault(innergemeinschaftlichKonto, new BigDecimal(0)).add(bemessungsgrundlage);
-                    innergemeinschaftlich.put(innergemeinschaftlichKonto, sum);
-                    innergemeinschaftlichTotal = innergemeinschaftlichTotal.add(bemessungsgrundlage.multiply(konto.getAmount()));
+                    BigDecimal sum = innergemeinschaftlichMap.getOrDefault(innergemeinschaftlichKonto, new BigDecimal(0)).add(bemessungsgrundlage);
+                    innergemeinschaftlichMap.put(innergemeinschaftlichKonto, sum);
                 }
                 default -> throw new IllegalStateException("Unknown Steuerkonto type: " + konto.getClass().getName());
             }
         }
+        SteuerDTO vorsteuer = flattenMap(vorsteuerMap);
+        SteuerDTO umsatzsteuer = flattenMap(umsatzsteuerMap);
+        SteuerDTO innergemeinschaftlich = flattenMap(innergemeinschaftlichMap);
+
         // viel aufwende -> mehr Ust -> mehr Guthaben
         // viel erträge -> mehr VorSt. -> weniger Guthaben
-        BigDecimal summeVorsteuer = vorsteuerTotal.add(innergemeinschaftlichTotal);
-        BigDecimal zahllast = summeVorsteuer.subtract(umsatzsteuerTotal);
+        BigDecimal summeAbziehbareVorsteuer = vorsteuer.getSummeSteuer().add(innergemeinschaftlich.getSummeSteuer());
+        BigDecimal zahllast = umsatzsteuer.getSummeSteuer().subtract(vorsteuer.getSummeSteuer());
+
+        UstDTO ustDTO = new UstDTO()
+                .setStartDate(start)
+                .setEndDate(end)
+
+                .setUmsatzsteuer(umsatzsteuer)
+                .setVorsteuer(vorsteuer)
+                .setInnergemeinschaftlich(innergemeinschaftlich)
+
+                .setSummeAbziehbareVorsteuer(Calc.formatToCurrency(summeAbziehbareVorsteuer))
+                .setIstZahllast(zahllast.compareTo(BigDecimal.ZERO) > 0)
+                .setZahllast(Calc.formatToCurrency(zahllast.abs()));
+
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
-            builder.withHtmlContent(umsatzsteuerReport.render(
-                    Map.of(
-                            "startDate", start,
-                            "endDate", end,
-                            "vorsteuer", flattenMap(vorsteuer),
-                            "vorsteuerTotal", Calc.formatToCurrency(vorsteuerTotal),
-                            "umsatzsteuer", flattenMap(umsatzsteuer),
-                            "umsatzsteuerTotal", Calc.formatToCurrency(umsatzsteuerTotal),
-                            "innergemeinschaftlich", flattenMap(innergemeinschaftlich),
-                            "innergemeinschaftlichTotal", Calc.formatToCurrency(innergemeinschaftlichTotal),
-                            "summeVorsteuer", Calc.formatToCurrency(summeVorsteuer),
-                            "zahllast", Calc.formatToCurrency(zahllast)
-                    )
-            ), null);
+            builder.withHtmlContent(umsatzsteuerReport.render(ustDTO), null);
             builder.toStream(baos);
             builder.run();
             return baos.toByteArray();
+        } catch (Exception e) {
+            log.error("Error creating PDF", e);
+            throw new InternalServerErrorException("Error creating PDF: " + e.getMessage());
         }
     }
 
-    private List<Map<String, String>> flattenMap(Map<? extends Konto.Steuer, BigDecimal> steuerMap) {
+    private SteuerDTO flattenMap(Map<? extends Konto.Steuer, BigDecimal> steuerMap) {
+        BigDecimal summeSteuern = new BigDecimal(0);
+        BigDecimal summeBemessungsgrundlage = new BigDecimal(0);
+
         List<Map<String, String>> list = new LinkedList<>();
-        steuerMap.forEach((konto, betrag) -> {
+
+        for (Map.Entry<? extends Konto.Steuer, BigDecimal> entry : steuerMap.entrySet()) {
+            Konto.Steuer konto = entry.getKey();
+            BigDecimal betrag = entry.getValue();
+            BigDecimal steuer = betrag.multiply(konto.getAmount());
+
             list.add(Map.of(
                     "name", konto.getBeschreibung(),
                     "konto", konto.getShortName(),
                     "bemessungsgrundlage", Calc.formatToCurrency(betrag),
-                    "steuerbetrag", Calc.formatToCurrency(betrag.multiply(konto.getAmount()))
+                    "steuerbetrag", Calc.formatToCurrency(steuer)
             ));
-        });
-        return list;
+
+            summeSteuern = summeSteuern.add(steuer);
+            summeBemessungsgrundlage = summeBemessungsgrundlage.add(betrag);
+        }
+
+        return new SteuerDTO()
+                .setSummeSteuer(summeSteuern)
+                .setBemessungsgrundlage(summeBemessungsgrundlage)
+                .setZeilen(list);
     }
 
 }

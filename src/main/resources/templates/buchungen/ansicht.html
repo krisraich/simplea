@@ -217,6 +217,7 @@
             einnahme.checked = buchung.einnahme;
             ausgabe.checked = !buchung.einnahme;
             steuerSatz.value = buchung.steuerSatz;
+            bnSwitch.checked = buchung.brutto;
             filterKonten();
             updateBetrag();
             document.querySelectorAll("select[name='kontoNummer'] option[value='" + buchung.kontoNummer + "']")[0].selected = true

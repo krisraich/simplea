@@ -45,7 +45,7 @@
 <p>Zeitraum {startDate} bis {endDate}</p>
 
 <br />
-<h3>Umsatzsteuer</h3>
+<h3>Berechnung der Umsatzsteuer</h3>
 
 <table>
     <thead>
@@ -57,7 +57,7 @@
     </tr>
     </thead>
     <tbody>
-    {#for zeile in umsatzsteuer}
+    {#for zeile in umsatzsteuer.zeilen}
     <tr>
         <td>{zeile.name}</td>
         <td>{zeile.konto}</td>
@@ -70,8 +70,8 @@
     <tr>
         <td>Summe</td>
         <td></td>
-        <td></td>
-        <td>€ {umsatzsteuerTotal}</td>
+        <td>{umsatzsteuer.bemessungsgrundlageFormat}</td>
+        <td>{umsatzsteuer.summeSteuerFormat}</td>
     </tr>
     </tfoot>
 </table>
@@ -90,7 +90,7 @@
     </tr>
     </thead>
     <tbody>
-    {#for zeile in innergemeinschaftlich}
+    {#for zeile in innergemeinschaftlich.zeilen}
     <tr>
         <td>{zeile.name}</td>
         <td>{zeile.konto}</td>
@@ -101,17 +101,17 @@
     </tbody>
     <tfoot>
     <tr>
-        <td>Summe</td>
+        <td>Gesamtbetrag</td>
         <td></td>
-        <td></td>
-        <td>€ {innergemeinschaftlichTotal}</td>
+        <td>{innergemeinschaftlich.bemessungsgrundlageFormat}</td>
+        <td>{innergemeinschaftlich.summeSteuerFormat}</td>
     </tr>
     </tfoot>
 </table>
 
 <br />
 <br />
-<h3>Vorsteuer</h3>
+<h3>Berechnung der abziehbaren Vorsteuer</h3>
 
 <table>
     <thead>
@@ -123,7 +123,7 @@
         </tr>
     </thead>
     <tbody>
-    {#for zeile in vorsteuer}
+    {#for zeile in vorsteuer.zeilen}
         <tr>
             <td>{zeile.name}</td>
             <td>{zeile.konto}</td>
@@ -131,23 +131,20 @@
             <td>€ {zeile.steuerbetrag}</td>
         </tr>
     {/for}
-    <tr>
-        <td>Summe innergemeinschaftlicher Erwerb</td>
-        <td></td>
-        <td></td>
-        <td>€ {innergemeinschaftlichTotal}</td>
-    </tr>
     </tbody>
     <tfoot>
     <tr>
-        <td>Summe</td>
+        <td>Gesamtbetrag der Vorsteuern</td>
         <td></td>
-        <td></td>
-        <td>€ {summeVorsteuer}</td>
+        <td>{vorsteuer.bemessungsgrundlageFormat}</td>
+        <td>{vorsteuer.summeSteuerFormat}</td>
     </tr>
     </tfoot>
 </table>
 
+<br />
+
+Gesamtbetrag der abziehbaren Vorsteuer: {vorsteuer.summeSteuerFormat} +  {innergemeinschaftlich.summeSteuerFormat} = <strong>€ {summeAbziehbareVorsteuer}</strong>
 
 <br />
 <br />
@@ -157,16 +154,16 @@
     <tbody>
     <tr>
         <td>Summe Steuer Umsätze</td>
-        <td>€ {umsatzsteuerTotal}</td>
+        <td>{umsatzsteuer.summeSteuerFormat}</td>
     </tr>
     <tr>
         <td>Summe Vorsteuer</td>
-        <td>€ {summeVorsteuer}</td>
+        <td>{vorsteuer.summeSteuerFormat}</td>
     </tr>
     </tbody>
     <tfoot>
     <tr>
-        <td>Ust. Zahllast</td>
+        <td>{#if istZahllast}Vorauszahlung (Zahllast){#else}Überschuss (Gutschrift){/if}</td>
         <td>€ {zahllast}</td>
     </tr>
     </tfoot>
