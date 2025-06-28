@@ -20,15 +20,8 @@
 package at.kara.user;
 
 import at.kara.common.BaseResource;
-import at.kara.tenant.Tenant;
-import io.quarkus.qute.TemplateInstance;
-import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
 
 @Path("/benutzer")
 @ApplicationScoped
