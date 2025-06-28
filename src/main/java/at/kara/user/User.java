@@ -37,6 +37,8 @@ public class User extends PanacheMongoEntityBase {
     @BsonId
     public String id;
 
+    private int currentYear;
+
     private Map<String, Integer> buchungNummerCounter = new HashMap<>();
 
     public int getAndIncrementNextBuchungsNummer(LocalDate buchungsDatum) {

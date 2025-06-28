@@ -72,9 +72,13 @@ public class BuchungenResource extends BaseResource {
     @GET
     @Override
     public TemplateInstance index() {
+        int currentYear = getCurrentUser().getCurrentYear();
+        List<Buchung> buchungen = buchungenRepository
+                .streamAll()
+                .filter(buchung -> buchung.getDatum().getYear() == currentYear)
+                .sorted(Collections.reverseOrder())
+                .toList();
 
-        List<Buchung> buchungen = buchungenRepository.listAll();
-        buchungen.sort(Collections.reverseOrder());
         return getTemplate()
                 .data("buchungen", buchungen)
                 .data("konten", KontenPlan.EA_LISTE)

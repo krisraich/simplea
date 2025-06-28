@@ -25,6 +25,8 @@ import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ext.Provider;
 
+import java.util.Calendar;
+
 @Provider
 @RequestScoped
 public class UserProvider {
@@ -34,8 +36,10 @@ public class UserProvider {
 
     @Produces
     public User getUser() {
-        return (User) User.findByIdOptional(tenant.getTenantId()).orElseGet(() -> {
-            User newUser = new User().setId(tenant.getTenantId());
+        String tenantId = tenant.getTenantId();
+        return (User) User.findByIdOptional(tenantId).orElseGet(() -> {
+            User newUser = new User().setId(tenantId);
+            newUser.setCurrentYear(Calendar.getInstance().get(Calendar.YEAR));
             newUser.persist();
             return newUser;
         });

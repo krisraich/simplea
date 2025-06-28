@@ -4,6 +4,12 @@
     {#if tenant}
         Benutzer ID: {tenant.getTenantId} <br />
         Benutzername: {tenant.getUserName} <br />
+        Aktuelles Buchungsjahr: {user.currentYear} <br />
+        <br />
+        Buchungsnumern pro Jahr
+        {#for year in user.buchungNummerCounter}
+            {year.key} - {year.value} <br />
+        {/for}
     {#else}
         Sie sind nicht angemeldet.
     {/if}

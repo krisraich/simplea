@@ -21,7 +21,10 @@ package at.kara.user;
 
 import at.kara.common.BaseResource;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Response;
 
 @Path("/benutzer")
 @ApplicationScoped
@@ -31,4 +34,13 @@ public class UserResource extends BaseResource {
         super("benutzer");
     }
 
+    @POST
+    @Path("/year")
+    @Consumes("text/plain")
+    public Response setYear(int newYear) {
+        User currentUser = getCurrentUser();
+        currentUser.setCurrentYear(newYear);
+        currentUser.update();
+        return Response.ok().build();
+    }
 }

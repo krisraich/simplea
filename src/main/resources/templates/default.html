@@ -55,15 +55,20 @@
     <nav>
         <ul>
             <li>
-                <details class="dropdown">
-                    <summary class="secondary">Theme</summary>
-                    <ul>
-                        <li><a href="#" onclick="setTheme('light')">Light</a></li>
-                        <li><a href="#" onclick="setTheme('dark')">Dark</a></li>
-                    </ul>
-                </details>
+                <fieldset role="group">
+                    <input
+                            id="currentYear"
+                            style="width: 70px; margin-right: 1em;"
+                            type="number"
+                            step="1"
+                            id="year"
+                            placeholder="Jahr"
+                            value="{user.currentYear}"
+                    />
 
-                <h1 style="margin-bottom: 0">{#insert title /}</h1></li>
+                    <h1 style="margin-bottom: 0">{#insert title /}</h1>
+                </fieldset>
+            </li>
         </ul>
         <ul>
             <!-- Responsive Menü-Toggle mit Alpine.js -->
@@ -92,6 +97,18 @@
         localStorage.setItem('theme', theme);
         document.documentElement.setAttribute('data-theme', theme);
     }
+
+    const currentYear = document.getElementById("currentYear");
+    currentYear.addEventListener("change", function () {
+        fetch('/benutzer/year', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain'
+            },
+            body: currentYear.value
+        }).then(value => { location.reload() })
+    });
+
 </script>
 </body>
 </html>
