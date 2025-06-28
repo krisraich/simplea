@@ -44,6 +44,4 @@ nb-configuration.xml
 # TLS Certificates
 .certs/
 
-simplEA.image
-deploy.sh
 run.sh
