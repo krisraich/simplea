@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package at.kara.benutzer;
+package at.kara.user;
 
 import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
 import io.quarkus.mongodb.panache.common.MongoEntity;
@@ -32,14 +32,12 @@ import java.util.Map;
 @Data
 @Accessors(chain = true)
 @MongoEntity(collection="benutzer")
-public class Benutzer extends PanacheMongoEntityBase {
-
+public class User extends PanacheMongoEntityBase {
 
     @BsonId
     public String id;
 
     private Map<String, Integer> buchungNummerCounter = new HashMap<>();
-
 
     public int getAndIncrementNextBuchungsNummer(LocalDate buchungsDatum) {
         String key = "" + buchungsDatum.getYear();

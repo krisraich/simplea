@@ -17,28 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package at.kara.benutzer;
+package at.kara.user;
 
+import at.kara.common.BaseResource;
 import at.kara.tenant.Tenant;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.enterprise.inject.Produces;
+import io.quarkus.qute.TemplateInstance;
+import io.quarkus.security.Authenticated;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.ext.Provider;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 
-@Provider
-@RequestScoped
-public class BenutzerProvider {
+@Path("/benutzer")
+@ApplicationScoped
+public class UserResource extends BaseResource {
 
-    @Inject
-    Tenant tenant;
-
-    @Produces
-    public Benutzer getUser() {
-        Benutzer byId = Benutzer.findById(tenant.getTenantId());
-        if(byId == null) {
-            byId = new Benutzer().setId(tenant.getTenantId());
-            byId.persist();
-        }
-        return byId;
+    public UserResource() {
+        super("benutzer");
     }
+
 }

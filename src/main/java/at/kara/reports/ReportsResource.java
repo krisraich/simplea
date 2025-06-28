@@ -21,6 +21,7 @@ package at.kara.reports;
 
 import at.kara.buchungen.Buchung;
 import at.kara.buchungen.BuchungenRepository;
+import at.kara.common.BaseResource;
 import at.kara.common.Calc;
 import at.kara.common.Util;
 import at.kara.konten.Konto;
@@ -56,27 +57,20 @@ import java.util.Optional;
 
 import static at.kara.common.Util.processValue;
 
-@Path("/reports")
-@Authenticated
-@ApplicationScoped
-@Produces(MediaType.TEXT_HTML)
 @Slf4j
-public class ReportsResource {
+@ApplicationScoped
+@Path("/reports")
+public class ReportsResource extends BaseResource {
 
     @Inject
     BuchungenRepository buchungenRepository;
 
     @Inject
-    @Location("reports/ansicht.html")
-    Template ansicht;
-
-    @Inject
     @Location("pdf/umsatzsteuer.pdf.html")
     Template umsatzsteuerReport;
 
-    @GET
-    public TemplateInstance anzeigen() {
-        return ansicht.instance();
+    public ReportsResource() {
+        super("reports");
     }
 
     @POST

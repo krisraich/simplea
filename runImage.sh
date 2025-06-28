@@ -17,4 +17,4 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-docker run --name simplea --rm -p 8070:8070 kara/simplea-jvm
+docker run --name simplea --rm -p 8070:8070 krisraich/simplea

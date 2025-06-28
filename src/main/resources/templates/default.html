@@ -54,7 +54,16 @@
 <header class="container">
     <nav>
         <ul>
-            <li><h1 style="margin-bottom: 0">SimplEA - {#insert title /}</h1></li>
+            <li>
+                <details class="dropdown">
+                    <summary class="secondary">Theme</summary>
+                    <ul>
+                        <li><a href="#" onclick="setTheme('light')">Light</a></li>
+                        <li><a href="#" onclick="setTheme('dark')">Dark</a></li>
+                    </ul>
+                </details>
+
+                <h1 style="margin-bottom: 0">{#insert title /}</h1></li>
         </ul>
         <ul>
             <!-- Responsive Menü-Toggle mit Alpine.js -->
@@ -77,6 +86,12 @@
 <!-- Hauptinhalt -->
 {#insert}You should not see this...{/}
 
-<script defer src="/main.js"></script>
+<script>
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'auto');
+    function setTheme(theme) {
+        localStorage.setItem('theme', theme);
+        document.documentElement.setAttribute('data-theme', theme);
+    }
+</script>
 </body>
 </html>

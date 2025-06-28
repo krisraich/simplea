@@ -17,32 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package at.kara.reports;
+package at.kara.user;
 
-import at.kara.common.Calc;
-import lombok.Data;
-import lombok.experimental.Accessors;
+import at.kara.tenant.Tenant;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.ext.Provider;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
+@Provider
+@RequestScoped
+public class UserProvider {
 
-@Data
-@Accessors(chain = true)
-public class SteuerDTO {
+    @Inject
+    Tenant tenant;
 
-
-    private List<Map<String, String>> zeilen;
-    private BigDecimal summeSteuer;
-    private BigDecimal bemessungsgrundlage;
-
-    //used by template
-    public String getSummeSteuerFormat() {
-        return "€ " + Calc.formatToCurrency(summeSteuer);
+    @Produces
+    public User getUser() {
+        return (User) User.findByIdOptional(tenant.getTenantId()).orElseGet(() -> {
+            User newUser = new User().setId(tenant.getTenantId());
+            newUser.persist();
+            return newUser;
+        });
     }
-
-    public String getBemessungsgrundlageFormat() {
-        return "€ " + Calc.formatToCurrency(bemessungsgrundlage);
-    }
-
 }

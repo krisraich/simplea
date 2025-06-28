@@ -17,4 +17,4 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-mvn clean package && docker build -f src/main/docker/Dockerfile.jvm -t kara/simplea-jvm .
+mvn clean package && docker build -f src/main/docker/Dockerfile.jvm -t krisraich/simplea .

@@ -19,12 +19,11 @@
 
 package at.kara.buchungen;
 
-import at.kara.benutzer.Benutzer;
+import at.kara.common.BaseResource;
 import at.kara.konten.KontenPlan;
 import io.quarkus.qute.Location;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
-import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -54,40 +53,32 @@ import java.util.Map;
 
 import static at.kara.common.Util.processValue;
 
-@Path("/buchungen")
-@Authenticated
-@ApplicationScoped
 @Produces(MediaType.TEXT_HTML)
-public class BuchungenResource {
+@ApplicationScoped
+@Path("/buchungen")
+public class BuchungenResource extends BaseResource {
 
     @Inject
     BuchungenRepository buchungenRepository;
 
     @Inject
-    Benutzer currentBenutzer;
-
-
-    @Inject
-    @Location("buchungen/ansicht.html")
-    Template ansicht;
-
-    @Inject
     @Location("buchungen/tableRow.html")
     Template tableRow;
 
-    @Inject
-    Benutzer benutzer;
+    public BuchungenResource() {
+        super("buchungen");
+    }
 
     @GET
-    public TemplateInstance show() {
+    @Override
+    public TemplateInstance index() {
 
         List<Buchung> buchungen = buchungenRepository.listAll();
         buchungen.sort(Collections.reverseOrder());
-        return ansicht.data(
-                "buchungen", buchungen,
-                "konten", KontenPlan.EA_LISTE,
-                "steuerCodes", Steuersatz.values()
-        );
+        return getTemplate()
+                .data("buchungen", buchungen)
+                .data("konten", KontenPlan.EA_LISTE)
+                .data("steuerCodes", Steuersatz.values());
     }
 
     @POST
@@ -95,7 +86,7 @@ public class BuchungenResource {
     public TemplateInstance create(MultipartFormDataInput input) {
         Buchung buchung = new Buchung();
         validateNewBuchung(input, buchung);
-        buchung.setBuchungsNummer(benutzer.getAndIncrementNextBuchungsNummer(buchung.getDatum()));
+        buchung.setBuchungsNummer(getCurrentUser().getAndIncrementNextBuchungsNummer(buchung.getDatum()));
         buchungenRepository.persist(buchung);
         return tableRow.data(
                 "buchung", buchung,

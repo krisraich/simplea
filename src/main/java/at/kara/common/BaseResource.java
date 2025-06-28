@@ -17,35 +17,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package at.kara.benutzer;
+package at.kara.common;
 
 import at.kara.tenant.Tenant;
-import io.quarkus.qute.Location;
-import io.quarkus.qute.Template;
+import at.kara.user.User;
+import io.quarkus.qute.Engine;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.security.Authenticated;
-import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import lombok.RequiredArgsConstructor;
 
-@Path("/benutzer")
 @Authenticated
-@RequestScoped
-@Produces(MediaType.TEXT_HTML)
-public class BenutzerResource {
+@RequiredArgsConstructor
+public abstract class BaseResource {
+
+    public static final String DEFAULT_TEMPLATE_NAME = "/index.html";
 
     @Inject
-    Tenant tenant;
+    Engine templateEngine;
 
     @Inject
-    @Location("benutzer/ansicht.html")
-    Template ansicht;
+    Provider<User> userProvider;
+
+    @Inject
+    Provider<Tenant> tenantProvider;
+
+    private final String siteName;
+
+    protected TemplateInstance getTemplate() {
+        return templateEngine
+                .getTemplate(siteName + DEFAULT_TEMPLATE_NAME)
+                .data("user",  getCurrentUser())
+                .data("tenant",  getCurrentTenant());
+    }
+
+    protected User getCurrentUser() {
+        return userProvider.get();
+    }
+
+    protected Tenant getCurrentTenant() {
+        return tenantProvider.get();
+    }
+
 
     @GET
-    public TemplateInstance getCurrentUser() {
-        return ansicht.data("tenant", tenant);
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateInstance index() {
+        return getTemplate();
     }
+
 }
